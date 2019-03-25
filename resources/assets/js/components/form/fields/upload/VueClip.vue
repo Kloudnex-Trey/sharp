@@ -192,7 +192,7 @@
                 return extension ? `.${extension}` : null;
             },
             downloadLink() {
-                return `${this.$form.downloadLinkBase}/${this.downloadId}`;
+                return `${this.$form.downloadBaseUrl}/${this.downloadId}`;
             },
             showThumbnail() {
                 return this.imageSrc;

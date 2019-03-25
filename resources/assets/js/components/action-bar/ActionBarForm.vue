@@ -1,34 +1,38 @@
 <template>
-    <sharp-action-bar :ready="ready" container>
+    <SharpActionBar>
         <template slot="left">
-            <button class="SharpButton SharpButton--secondary-accent" @click="emitAction('cancel')">
-                {{ showBackButton ? label('back_button') : label('cancel_button') }}
+            <button class="SharpButton SharpButton--secondary-accent" @click="handleCancelButtonClicked">
+                {{ cancelButtonLabel }}
             </button>
 
-            <div v-if="showDeleteButton" class="w-100 h-100">
-                <collapse transition-class="SharpButton__collapse-transition">
-                    <template slot="frame-0" slot-scope="frame">
-                        <button class="SharpButton SharpButton--danger" @click="frame.next(focusDelete)">
-                            <svg  width='16' height='16' viewBox='0 0 16 24' fill-rule='evenodd'>
-                                <path d='M4 0h8v2H4zM0 3v4h1v17h14V7h1V3H0zm13 18H3V8h10v13z'></path>
-                                <path d='M5 10h2v9H5zm4 0h2v9H9z'></path>
-                            </svg>
-                        </button>
-                    </template>
-                    <template slot="frame-1" slot-scope="frame">
-                        <button @click="emitAction('delete')" @blur="frame.next()" ref="openDelete" class="SharpButton SharpButton--danger">
-                            {{ label('delete_button') }}
-                        </button>
-                    </template>
-                </collapse>
-            </div>
+            <template v-if="showDeleteButton">
+                <div class="w-100 h-100">
+                    <collapse transition-class="SharpButton__collapse-transition">
+                        <template slot="frame-0" slot-scope="frame">
+                            <button class="SharpButton SharpButton--danger" @click="frame.next(focusDelete)">
+                                <svg  width='16' height='16' viewBox='0 0 16 24' fill-rule='evenodd'>
+                                    <path d='M4 0h8v2H4zM0 3v4h1v17h14V7h1V3H0zm13 18H3V8h10v13z'></path>
+                                    <path d='M5 10h2v9H5zm4 0h2v9H9z'></path>
+                                </svg>
+                            </button>
+                        </template>
+                        <template slot="frame-1" slot-scope="frame">
+                            <button class="SharpButton SharpButton--danger" @click="handleDeleteButtonClicked" @blur="frame.next()" ref="openDelete">
+                                {{ deleteButtonLabel }}
+                            </button>
+                        </template>
+                    </collapse>
+                </div>
+            </template>
         </template>
         <template slot="right">
-            <button v-if="showSubmitButton" class="SharpButton SharpButton--accent" @click="emitAction('submit')">
-                {{ label('submit_button',opType) }}
-            </button>
+            <template v-if="showSubmitButton">
+                <button class="SharpButton SharpButton--accent" @click="handleSubmitButtonClicked">
+                    {{ submitButtonLabel }}
+                </button>
+            </template>
         </template>
-    </sharp-action-bar>
+    </SharpActionBar>
 </template>
 
 <script>
@@ -55,19 +59,36 @@
             SharpDropdownItem,
             Collapse
         },
-        data() {
-            return {
-                showSubmitButton: false,
-                showDeleteButton: false,
-                showBackButton: false,
-
-                deleteButtonOpened: false,
-
-                opType: 'create', // or 'update'
-                actionsState: null
-            }
+        props: {
+            showSubmitButton: Boolean,
+            showDeleteButton: Boolean,
+            showBackButton: Boolean,
+            isCreation: Boolean,
+            actionsState: Object,
+        },
+        computed: {
+            submitButtonLabel() {
+                return this.label(`submit_button.${this.isCreation ? 'create' : 'update'}`);
+            },
+            deleteButtonLabel() {
+                return this.label('delete_button');
+            },
+            cancelButtonLabel() {
+                return this.showBackButton
+                    ? this.label('back_button')
+                    : this.label('cancel_button');
+            },
         },
         methods: {
+            handleSubmitButtonClicked() {
+                this.$emit('submit');
+            },
+            handleDeleteButtonClicked() {
+                this.$emit('delete');
+            },
+            handleCancelButtonClicked() {
+                this.$emit('cancel');
+            },
             focusDelete() {
                 if(this.$refs.openDelete) {
                     this.$refs.openDelete.focus();
@@ -83,18 +104,5 @@
                 return stateLabel || lang(localeKey);
             }
         },
-        actions: {
-            setup(config) {
-                let { showSubmitButton, showDeleteButton, showBackButton, opType } = config;
-
-                this.showSubmitButton = showSubmitButton;
-                this.showDeleteButton = showDeleteButton;
-                this.showBackButton = showBackButton;
-                this.opType = opType;
-            },
-            updateActionsState(actionsState) {
-                this.actionsState = actionsState;
-            }
-        }
     }
 </script>

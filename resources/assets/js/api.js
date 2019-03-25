@@ -55,3 +55,12 @@ export function getAutocompleteSuggestions({ url, method, locale, searchAttribut
             .then(response => response.data);
     }
 }
+
+export function getForm({ entityKey, instanceId }) {
+    return api.get(`form/${entityKey}${instanceId ? `/${instanceId}`: ''}`)
+        .then(response => response.data);
+}
+
+export function postForm({ entityKey, instanceId, data }) {
+    return api.post(`form/${entityKey}${instanceId ? `/${instanceId}`: ''}`, data);
+}
